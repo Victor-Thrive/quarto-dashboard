@@ -1,12 +1,12 @@
 ---
 title: "Olympic Games"
 format: 
-  dashboard: 
+  dashboard:
     orientation: columns
-    nav-buttons: [github, twitter, linkedin] 
-    github: https://github.com/Victor-Thrive/quarto-dashboard
-    logo: images/olympics-logo.svg
-    logo-alt: "Olympics logo with multicolored circles"
+    nav-buttons: [github]
+    github: https://github.com/posit-conf-2024/olympicdash
+logo: images/olympics-logo.svg
+logo-alt: "Olympics logo with multicolored circles."
 ---
 
 ```{r}
@@ -14,11 +14,11 @@ format:
 library(tidyverse)
 library(gt)
 ```
-
 ```{r}
 #| label: load-data
 olympics_full <- read_csv("data/olympics.csv")
 ```
+
 
 ```{r}
 #| label: prep-data
@@ -28,25 +28,27 @@ olympics <- olympics_full |>
     !is.na(medal)
   ) |>
   separate_wider_delim(
-    cols = team,
-    names = c("team", "suffix"),
-    delim = "-",
-    too_many = "merge",
+    cols = team, 
+    names = c("team", "suffix"), 
+    delim = "-", 
+    too_many = "merge", 
     too_few = "align_start"
   ) |>
   select(-suffix) |>
-  mutate(medal =fct_relevel(medal, "Bronze","Silver","Gold"))
+  mutate(medal = fct_relevel(medal, "Bronze", "Silver", "Gold"))
 ```
 
-## Column - Medal by sport and year
+# 🌞Summer Olympics
 
-### Row - Medal by sport
+## Column - Medals by sport and year
+
+### Row - Medals by sport {height="60%"}
+
 ```{r}
 #| label: medals-by-sport
-#| title: medals-by-sport
+#| title: Medals by sport
 #| fig-width: 10
 #| fig-asp: 0.618
-
 olympics |>
   mutate(
     sport = fct_lump_n(sport, n = 15),
@@ -65,18 +67,17 @@ olympics |>
   theme_minimal() +
   theme(
     legend.position = "inside",
-    legend.position.inside = c(0.9,0.2),
+    legend.position.inside = c(0.9, 0.2),
     legend.direction = "horizontal",
-    legend.background = element_rect(fill = 'white', color = 'grey')
+    legend.background = element_rect(fill = "white", color = "gray")
   )
 ```
 
-### Row - Medal by year
+### Row - Medals by year {height="40%"}
+
 ```{r}
 #| label: medals-by-year
-#| title: medals-by-year
-#| fig-width: 10
-#| fig-asp: 0.3
+#| title: Medals by year
 olympics |>
   count(year, medal) |>
   ggplot(aes(x = year, y = n, color = medal)) +
@@ -92,40 +93,30 @@ olympics |>
   theme_minimal() +
   theme(
     legend.position = "inside",
-    legend.position.inside = c(0.9,0.2),
+    legend.position.inside = c(0.9, 0.2),
     legend.direction = "horizontal",
-    legend.background = element_rect(fill = 'white', color = 'grey')
+    legend.background = element_rect(fill = "white", color = "gray")
   )
 ```
 
 
-## Row - Medals by country
+## Column - Medals by country
 
 ```{r}
 #| label: medals-by-country
-#| title: medals-by-country
+#| title: Medals by country
 #| output: asis
-
 olympics |>
-  count(team,medal) |>
+  count(team, medal) |>
   pivot_wider(
-    names_from = medal,
-    values_from = n,
+    names_from = medal, 
+    values_from = n, 
     values_fill = 0
   ) |>
   mutate(Total = Bronze + Gold + Silver) |>
   relocate(Team = team, Gold, Silver, Bronze, Total) |>
   arrange(desc(Total), Team) |>
-  head() |>
-  gt::gt()  |>
-  as_raw_html()
+  gt() 
 ```
 
-
-
-
-
-
-
-
-
+# ❄️ Winter Olympics
